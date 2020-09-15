@@ -8,21 +8,24 @@ import (
 )
 
 type App struct {
-	Router *mux.Router
+	Router      *mux.Router
+	Middlewares *Middleware
 }
 
 type CreateShort struct {
-	URL string `json:"url"`
-	Expiration int64 `json:"expiration"`
+	URL        string `json:"url"`
+	Expiration int64  `json:"expiration"`
 }
 
-func (app *App) init () {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+func (app *App) init() {
+	log.SetFlags(log.LstdFlags)
 	app.Router = mux.NewRouter()
+	app.Middlewares = &Middleware{}
 	app.initRouter()
 }
 
-func (app *App) initRouter () {
+func (app *App) initRouter() {
+	app.Router.Use(app.Middlewares.LoggingMiddleware)
 	app.Router.HandleFunc("/api/short", app.createShortUrl).Methods("POST")
 	app.Router.HandleFunc("/api/short/{id}", app.getShortInfo).Methods("GET")
 	app.Router.HandleFunc("/{url:[a-zA-Z0-9]{1,11}}", app.redirect)
