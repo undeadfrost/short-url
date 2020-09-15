@@ -25,7 +25,8 @@ func (app *App) init() {
 }
 
 func (app *App) initRouter() {
-	app.Router.Use(app.Middlewares.LoggingMiddleware)
+	app.Router.Use(app.Middlewares.Logging)
+	app.Router.Use(app.Middlewares.Recover)
 	app.Router.HandleFunc("/api/short", app.createShortUrl).Methods("POST")
 	app.Router.HandleFunc("/api/short/{id}", app.getShortInfo).Methods("GET")
 	app.Router.HandleFunc("/{url:[a-zA-Z0-9]{1,11}}", app.redirect)
