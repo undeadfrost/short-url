@@ -5,5 +5,3 @@ func main() {
 	app.init()
 	app.run(":8080")
 }
-
-
