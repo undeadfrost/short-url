@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"short-url/util"
 )
 
 type App struct {
@@ -54,4 +55,21 @@ func (app *App) redirect(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, app.Router))
+}
+
+func responseWithError(w http.ResponseWriter, err error) {
+	switch e := err.(type) {
+	case Error:
+		ajaxReturn := util.AjaxReturn(-1, e.Error(), nil)
+		responseWithJson(w, e.Status(), ajaxReturn.JsonBytes())
+	default:
+		ajaxReturn := util.AjaxReturn(-1, http.StatusText(http.StatusInternalServerError), nil)
+		responseWithJson(w, http.StatusInternalServerError, ajaxReturn.JsonBytes())
+	}
+}
+
+func responseWithJson(w http.ResponseWriter, code int, respJson []byte) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(respJson)
 }
